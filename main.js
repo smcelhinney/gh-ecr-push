@@ -3,14 +3,15 @@ const core = require('@actions/core');
 
 const AWS_ACCESS_KEY_ID = core.getInput('access-key-id', { required: true });
 const AWS_SECRET_ACCESS_KEY = core.getInput('secret-access-key', { required: true });
-let image = core.getInput('image', { required: true });
-if (~image.indexOf(',')) {
-  image = image.split(',')
+let images = core.getInput('image', { required: true });
+if (~images.indexOf(',')) {
+  images = image.split(',')
 } else {
-  image = [image]
+  images = [images]
 };
 
-const localImage = core.getInput('local-image') || image;
+console.log(`images`, images)
+const localImages = core.getInput('local-image') || images;
 const awsRegion = core.getInput('region') || process.env.AWS_DEFAULT_REGION || 'us-east-1';
 const direction = core.getInput('direction') || 'push';
 const isSemver = core.getInput('is-semver');
@@ -33,21 +34,21 @@ function run(cmd, options = {}) {
 const accountLoginPassword = `aws ecr get-login-password --region ${awsRegion}`;
 const accountData = run(`aws sts get-caller-identity --output json`);
 const awsAccountId = JSON.parse(accountData).Account;
-const imageUrls = image.map(img => `https://${awsAccountId}.dkr.ecr.${awsRegion}.amazonaws.com/${img}`);
+const imageUrls = images.map(img => `https://${awsAccountId}.dkr.ecr.${awsRegion}.amazonaws.com/${img}`);
 core.setOutput('imageUrls', imageUrls);
 
 run(`${accountLoginPassword} | docker login --username AWS --password-stdin ${awsAccountId}.dkr.ecr.${awsRegion}.amazonaws.com`);
 
 if (direction === 'push') {
   if (!isSemver) {
-    for (const currentImg of image) {
-      console.log(`Pushing local image ${localImage} to ${awsAccountId}.dkr.ecr.${awsRegion}.amazonaws.com/${image}`);
-      run(`docker tag ${localImage} ${awsAccountId}.dkr.ecr.${awsRegion}.amazonaws.com/${currentImg}`);
+    for (const currentImg of images) {
+      console.log(`Pushing local image ${currentImg} to ${awsAccountId}.dkr.ecr.${awsRegion}.amazonaws.com/${currentImg}`);
+      run(`docker tag ${currentImg} ${awsAccountId}.dkr.ecr.${awsRegion}.amazonaws.com/${currentImg}`);
       run(`docker push ${awsAccountId}.dkr.ecr.${awsRegion}.amazonaws.com/${currentImg}`);
     }
   } else {
     const uris = [];
-    for (const currentImg of localImage) {
+    for (const currentImg of localImages) {
       const [imageName, tag] = currentImg.split(':');
       // This is quite a simplistic check, could be improved
       const isSemverTag = ~tag.indexOf('.');
