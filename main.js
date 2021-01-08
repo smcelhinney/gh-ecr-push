@@ -5,7 +5,7 @@ const AWS_ACCESS_KEY_ID = core.getInput('access-key-id', { required: true });
 const AWS_SECRET_ACCESS_KEY = core.getInput('secret-access-key', { required: true });
 let images = core.getInput('image', { required: true });
 if (~images.indexOf(',')) {
-  images = image.split(',')
+  images = images.split(',')
 } else {
   images = [images]
 };
