@@ -46,7 +46,7 @@ function pushImageTags() {
   if (!isSemver) {
     for (const tag of remoteImageTags) {
       console.log(`Pushing local image ${image} to ${ecrPrefix}/${tag}`);
-      run(`docker tag ${tag} ${ecrPrefix}/${tag}`);
+      run(`docker tag ${image} ${ecrPrefix}/${tag}`);
       run(`docker push ${ecrPrefix}/${tag}`);
     }
   } else {
