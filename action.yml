@@ -21,6 +21,9 @@ inputs:
     description: Specifies if the image follows the semantic versioning standard. It will push X, X.Y and X.Y.Z tags. Defaults to false.
     required: false
     defaults: false
+  remote-image-tags: 
+    description: A comma separated list (or single entry) of remote tags to be pushed
+    required: true
 runs:
   using: node12
   main: 'main.js'

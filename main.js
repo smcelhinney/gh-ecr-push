@@ -50,28 +50,32 @@ function pushImageTags() {
       run(`docker push ${ecrPrefix}/${tag}`);
     }
   } else {
-    // const uris = [];
-    // for (const currentImg of localImages) {
-    //   const [imageName, tag] = currentImg.split(':');
-    //   // This is quite a simplistic check, could be improved
-    //   const isSemverTag = ~tag.indexOf('.');
-    //   if (isSemverTag) {
-    //     const semverArray = currentImg.split(':')[1].split('.');
-    //     const versions = semverArray.map((number, index) =>
-    //       semverArray.slice(0, index + 1).join('.')
-    //     );
-    //     versions.forEach(version => {
-    //       const uri = `${ecrPrefix}/${imageName}:${version}`;
-    //       uris.push(uri);
-    //     });
-    //   } else {
-    //     uris.push(`${ecrPrefix}/${imageName}:${tag}`)
-    //   }
-    // }
+    const uris = [];
+
+    for (const currentTag of remoteImageTags) {
+      const [imageName, tag] = currentTag.split(':');
+      // This is quite a simplistic check, could be improved
+      const isSemverTag = ~tag.indexOf('.');
+
+      if (isSemverTag) {
+        const semverArray = tag.split('.');
+        const versions = semverArray.map((number, index) =>
+          semverArray.slice(0, index + 1).join('.')
+        );
+                
+        versions.forEach(version => {
+          const uri = `${ecrPrefix}/${imageName}:${version}`;
+          uris.push(uri);
+        });
+      } else {
+        uris.push(`${ecrPrefix}/${currentTag}`)
+      }
+    }
+    console.log(`uris`, uris)
 
     // uris.forEach(uri => {
     //   console.log(`Pushing ${uri}`);
-    //   run(`docker tag ${currentImg} ${uri}`);
+    //   run(`docker tag ${image} ${uri}`);
     //   run(`docker push ${uri}`);
     // })
   }
